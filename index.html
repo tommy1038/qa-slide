@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エンジニアとデザイナーのしごとってなんだろう？</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF5E8;
+    --navy:#1E5FA8;
+    --navy-dark:#12406f;
+    --coral:#E8586A;
+    --coral-dark:#c73f52;
+    --yellow:#F2B705;
+    --green:#3E9A6D;
+    --ink:#2E2A22;
+    --paper:#FFFDF7;
+    --line:#E4D9BE;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:var(--cream);
+    font-family:'M PLUS Rounded 1c', sans-serif;
+    color:var(--ink);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Zen Maru Gothic', sans-serif;}
+
+  /* background texture */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(30,95,168,0.07) 0 3px, transparent 4px),
+      radial-gradient(circle at 92% 18%, rgba(232,88,106,0.08) 0 3px, transparent 4px),
+      radial-gradient(circle at 15% 85%, rgba(242,183,5,0.10) 0 3px, transparent 4px),
+      radial-gradient(circle at 85% 78%, rgba(62,154,109,0.08) 0 3px, transparent 4px);
+    background-size:140px 140px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  #deck{
+    position:relative;
+    width:100vw;height:100vh;
+    z-index:1;
+  }
+  .slide{
+    position:absolute;inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:6.5vh 6vw 9vh;
+    opacity:0;
+    transform:translateX(40px) scale(0.98);
+    transition:opacity .5s ease, transform .5s ease;
+    pointer-events:none;
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1;
+    transform:translateX(0) scale(1);
+    pointer-events:auto;
+  }
+  .slide.prev{
+    transform:translateX(-40px) scale(0.98);
+  }
+
+  /* ---------- shared bits ---------- */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:.5em;
+    background:var(--yellow);
+    color:var(--ink);
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+    padding:.45em 1.3em;
+    border-radius:999px;
+    font-size:clamp(13px,1.6vw,17px);
+    box-shadow:0 3px 0 rgba(0,0,0,0.12);
+    transform:rotate(-1.5deg);
+    margin-bottom:.6em;
+  }
+  h1.title{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:900;
+    text-align:center;
+    line-height:1.35;
+    margin:0 0 .3em;
+  }
+  .sub{
+    text-align:center;
+    font-size:clamp(13px,1.6vw,18px);
+    color:#6b6250;
+    margin-bottom:1.2em;
+  }
+
+  /* avatar badge */
+  .badge{
+    width:clamp(56px,7vw,84px);
+    height:clamp(56px,7vw,84px);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:900;
+    font-size:clamp(24px,3vw,34px);
+    color:#fff;
+    box-shadow:0 6px 0 rgba(0,0,0,0.15);
+    flex-shrink:0;
+  }
+  .badge.n{background:var(--navy);}
+  .badge.h{background:var(--coral);}
+
+  /* ---------- Slide 1: Title ---------- */
+  #slide-0 .stage{
+    display:flex;flex-direction:column;align-items:center;
+    max-width:900px;margin-top:1vh;
+  }
+  #slide-0 h1.title{font-size:clamp(28px,5vw,58px);}
+  #slide-0 h1.title .who{
+    color:var(--navy);
+  }
+  #slide-0 h1.title .who2{
+    color:var(--coral);
+  }
+  .versus{
+    display:flex;align-items:center;justify-content:center;
+    gap:clamp(20px,5vw,60px);
+    margin-top:1.4em;
+  }
+  .versus .who-card{
+    display:flex;flex-direction:column;align-items:center;gap:.5em;
+  }
+  .versus .name-tag{
+    font-weight:800;font-size:clamp(14px,1.7vw,20px);
+  }
+  .versus .role-pill{
+    font-size:clamp(11px,1.3vw,14px);
+    padding:.15em 1em;
+    border-radius:999px;
+    color:#fff;
+  }
+  .role-pill.n{background:var(--navy);}
+  .role-pill.h{background:var(--coral);}
+  .versus .x-mark{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:900;
+    font-size:clamp(24px,3.5vw,40px);
+    color:var(--ink);
+    opacity:.55;
+  }
+  .doodles span{position:absolute;font-size:clamp(20px,3vw,34px);opacity:.75;}
+
+  /* ---------- Slide 2: profile ---------- */
+  .profile-wrap{
+    display:flex;gap:clamp(16px,3vw,40px);
+    flex-wrap:wrap;justify-content:center;
+    max-width:1100px;width:100%;
+    margin-top:1vh;
+  }
+  .profile-card{
+    background:var(--paper);
+    border-radius:22px;
+    padding:clamp(18px,2.4vw,30px);
+    width:min(430px, 44vw);
+    min-width:280px;
+    box-shadow:0 8px 0 rgba(0,0,0,0.06), 0 2px 14px rgba(0,0,0,0.05);
+    border:2px solid var(--line);
+  }
+  .profile-card.h-card{border-color:#f2cfd3;}
+  .profile-head{
+    display:flex;align-items:center;gap:.9em;
+    margin-bottom:.9em;
+    padding-bottom:.8em;
+    border-bottom:2px dashed var(--line);
+  }
+  .profile-head .pname{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+    font-size:clamp(17px,1.9vw,22px);
+  }
+  .profile-card.n-card .pname{color:var(--navy-dark);}
+  .profile-card.h-card .pname{color:var(--coral-dark);}
+  .profile-head .prole{
+    font-size:clamp(12px,1.3vw,14px);
+    color:#7a7261;
+  }
+  .prow{
+    display:flex;gap:.7em;
+    padding:.5em 0;
+    font-size:clamp(13px,1.4vw,15.5px);
+    align-items:flex-start;
+  }
+  .prow .icon{flex-shrink:0;width:1.6em;text-align:center;}
+  .prow .plabel{
+    font-weight:700;color:#8a8168;
+    width:5.2em;flex-shrink:0;
+  }
+  .prow .pval{flex:1;line-height:1.5;}
+
+  /* ---------- Slide 3/4: schedule ---------- */
+  .day-wrap{
+    display:flex;gap:clamp(14px,3vw,36px);
+    max-width:1100px;width:100%;
+    flex-wrap:wrap;justify-content:center;
+    margin-top:.6vh;
+  }
+  .timeline{
+    background:var(--paper);
+    border-radius:20px;
+    padding:clamp(16px,2vw,26px) clamp(18px,2.4vw,30px);
+    flex:1 1 400px;max-width:520px;
+    border:2px solid var(--line);
+    box-shadow:0 6px 0 rgba(0,0,0,0.05);
+  }
+  .tl-row{
+    display:flex;align-items:center;gap:.9em;
+    padding:.55em 0;
+    border-bottom:1px solid #efe8d5;
+    font-size:clamp(12.5px,1.35vw,15px);
+  }
+  .tl-row:last-child{border-bottom:none;}
+  .tl-time{
+    font-weight:800;
+    width:3.4em;flex-shrink:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .n-theme .tl-time{color:var(--navy);}
+  .h-theme .tl-time{color:var(--coral);}
+  .tl-icon{width:1.5em;text-align:center;flex-shrink:0;}
+  .job-card{
+    flex:0 1 260px;
+    border-radius:20px;
+    padding:clamp(16px,2vw,22px);
+    color:#fff;
+    display:flex;flex-direction:column;
+    justify-content:space-between;
+    box-shadow:0 6px 0 rgba(0,0,0,0.10);
+  }
+  .job-card.n{background:linear-gradient(155deg,var(--navy),var(--navy-dark));}
+  .job-card.h{background:linear-gradient(155deg,var(--coral),var(--coral-dark));}
+  .job-card .jc-label{
+    font-family:'Zen Maru Gothic',sans-serif;
+    font-weight:700;
+    font-size:clamp(13px,1.4vw,16px);
+    margin-bottom:.5em;
+    opacity:.9;
+  }
+  .job-card .jc-text{
+    font-size:clamp(13px,1.4vw,15.5px);
+    line-height:1.7;
+  }
+  .job-card .jc-emoji{
+    font-size:clamp(28px,3vw,38px);
+    align-self:flex-end;
+    margin-top:.4em;
+  }
+
+  /* ---------- Slide 5: Q&A ---------- */
+  .qa-wrap{
+    max-width:820px;width:100%;
+    display:flex;flex-direction:column;gap:clamp(8px,1.4vh,14px);
+    margin-top:.6vh;
+  }
+  .qa-item{
+    display:flex;align-items:center;gap:1em;
+    background:var(--paper);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:.75em 1.2em;
+    font-size:clamp(13px,1.6vw,17px);
+    box-shadow:0 4px 0 rgba(0,0,0,0.05);
+  }
+  .qa-num{
+    flex-shrink:0;
+    width:2.2em;height:2.2em;
+    border-radius:50%;
+    background:var(--green);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-family:'Zen Maru Gothic',sans-serif;
+    font-size:.85em;
+  }
+  .qa-cta{
+    margin-top:.6em;
+    background:var(--green);
+    color:#fff;
+    border-radius:14px;
+    padding:.8em 1.4em;
+    text-align:center;
+    font-weight:700;
+    font-size:clamp(13px,1.6vw,16px);
+    box-shadow:0 4px 0 rgba(0,0,0,0.12);
+  }
+
+  /* ---------- nav controls ---------- */
+  .nav-bar{
+    position:fixed;
+    bottom:0;left:0;right:0;
+    height:8vh;min-height:56px;
+    display:flex;align-items:center;justify-content:center;
+    gap:18px;
+    z-index:5;
+    background:linear-gradient(to top, var(--cream) 60%, transparent);
+  }
+  .nav-btn{
+    width:44px;height:44px;
+    border-radius:50%;
+    border:none;
+    background:var(--paper);
+    box-shadow:0 3px 0 rgba(0,0,0,0.12);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    color:var(--ink);
+    transition:transform .15s ease;
+  }
+  .nav-btn:hover{transform:translateY(-2px);}
+  .nav-btn:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,0.12);}
+  .nav-btn:disabled{opacity:.3;cursor:default;}
+  .dots{display:flex;gap:9px;}
+  .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:#d8cca4;
+    cursor:pointer;
+    transition:all .25s ease;
+    border:none;padding:0;
+  }
+  .dot.active{
+    background:var(--navy);
+    width:26px;border-radius:6px;
+  }
+  .slide-count{
+    position:fixed;top:22px;right:26px;
+    font-size:12px;color:#9a9074;
+    font-weight:700;
+    letter-spacing:.05em;
+    z-index:5;
+  }
+
+  @media (max-width:640px){
+    .slide{padding:4.5vh 5vw 11vh;}
+    .versus{gap:16px;flex-direction:row;}
+    .profile-wrap, .day-wrap{gap:14px;}
+    .profile-card{width:100%;}
+    .timeline{max-width:100%;}
+    .job-card{flex:1 1 100%;max-width:100%;flex-direction:row;align-items:center;}
+    .job-card .jc-emoji{margin-top:0;margin-left:.6em;}
+  }
+</style>
+</head>
+<body>
+
+<div class="slide-count"><span id="cur">1</span> / <span id="tot">5</span></div>
+
+<div id="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <section class="slide active" id="slide-0">
+    <div class="stage">
+      <div class="eyebrow">💬 おしごとトーク＆質問タイム</div>
+      <h1 class="title">
+        <span class="who">エンジニア</span>と<span class="who2">デザイナー</span>の<br>
+        しごとってなんだろう？
+      </h1>
+      <div class="sub">気になることは、なんでも質問してください ✋</div>
+      <div class="versus">
+        <div class="who-card">
+          <div class="badge n">N</div>
+          <div class="name-tag">のあさん</div>
+          <div class="role-pill n">エンジニア</div>
+        </div>
+        <div class="x-mark">×</div>
+        <div class="who-card">
+          <div class="badge h">H</div>
+          <div class="name-tag">はらひさん</div>
+          <div class="role-pill h">デザイナー</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: PROFILE -->
+  <section class="slide" id="slide-1">
+    <div class="eyebrow">🌟 プロフィール</div>
+    <h1 class="title" style="font-size:clamp(20px,3vw,30px);">2人はどんな人？</h1>
+    <div class="profile-wrap">
+      <div class="profile-card n-card">
+        <div class="profile-head">
+          <div class="badge n" style="width:52px;height:52px;font-size:20px;">N</div>
+          <div>
+            <div class="pname">のあさん</div>
+            <div class="prole">エンジニア（プログラマー）</div>
+          </div>
+        </div>
+        <div class="prow"><div class="icon">📍</div><div class="plabel">出身</div><div class="pval">東京都</div></div>
+        <div class="prow"><div class="icon">💼</div><div class="plabel">仕事</div><div class="pval">システムやサービスをつくる仕事</div></div>
+        <div class="prow"><div class="icon">❤️</div><div class="plabel">好きなこと</div><div class="pval">ゲーム、サウナ、ラズベリーパイ</div></div>
+        <div class="prow"><div class="icon">💬</div><div class="plabel">ひとこと</div><div class="pval">ものづくりが大好きです！</div></div>
+      </div>
+      <div class="profile-card h-card">
+        <div class="profile-head">
+          <div class="badge h" style="width:52px;height:52px;font-size:20px;">H</div>
+          <div>
+            <div class="pname">はらひさん</div>
+            <div class="prole">デザイナー（クリエイター）</div>
+          </div>
+        </div>
+        <div class="prow"><div class="icon">📍</div><div class="plabel">出身</div><div class="pval">東京都</div></div>
+        <div class="prow"><div class="icon">💼</div><div class="plabel">仕事</div><div class="pval">デザインや見た目をつくる仕事</div></div>
+        <div class="prow"><div class="icon">❤️</div><div class="plabel">好きなこと</div><div class="pval">イラスト、旅行、おいしいもの</div></div>
+        <div class="prow"><div class="icon">💬</div><div class="plabel">ひとこと</div><div class="pval">アイデアを形にするのが好きです！</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: のあさんの1日 -->
+  <section class="slide" id="slide-2">
+    <div class="eyebrow">🖥️ のあさんの1日</div>
+    <h1 class="title" style="font-size:clamp(18px,2.6vw,26px);color:var(--navy-dark);">エンジニア（プログラマー）</h1>
+    <div class="day-wrap">
+      <div class="timeline n-theme">
+        <div class="tl-row"><div class="tl-time">7:00</div><div class="tl-icon">☀️</div><div>起床・朝の準備</div></div>
+        <div class="tl-row"><div class="tl-time">9:00</div><div class="tl-icon">🚃</div><div>出社・メールやタスクの確認</div></div>
+        <div class="tl-row"><div class="tl-time">10:00</div><div class="tl-icon">👥</div><div>進捗共有ミーティング</div></div>
+        <div class="tl-row"><div class="tl-time">12:00</div><div class="tl-icon">🍴</div><div>昼休憩</div></div>
+        <div class="tl-row"><div class="tl-time">13:00</div><div class="tl-icon">💻</div><div>プログラミング・開発作業</div></div>
+        <div class="tl-row"><div class="tl-time">15:30</div><div class="tl-icon">💬</div><div>クライアントとの打ち合わせ</div></div>
+        <div class="tl-row"><div class="tl-time">17:00</div><div class="tl-icon">📋</div><div>タスク整理・明日の準備</div></div>
+        <div class="tl-row"><div class="tl-time">18:30</div><div class="tl-icon">🏠</div><div>退社・帰宅</div></div>
+      </div>
+      <div class="job-card n">
+        <div class="jc-label">🔧 主な仕事</div>
+        <div class="jc-text">システムやアプリをつくったり、直したりして、みんなが使うサービスを支えています。</div>
+        <div class="jc-emoji">💻</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: はらひさんの1日 -->
+  <section class="slide" id="slide-3">
+    <div class="eyebrow">🎨 はらひさんの1日</div>
+    <h1 class="title" style="font-size:clamp(18px,2.6vw,26px);color:var(--coral-dark);">デザイナー（クリエイター）</h1>
+    <div class="day-wrap">
+      <div class="timeline h-theme">
+        <div class="tl-row"><div class="tl-time">7:30</div><div class="tl-icon">☀️</div><div>起床・朝の準備</div></div>
+        <div class="tl-row"><div class="tl-time">9:30</div><div class="tl-icon">🚃</div><div>出社・メールやタスクの確認</div></div>
+        <div class="tl-row"><div class="tl-time">10:00</div><div class="tl-icon">🎨</div><div>デザイン制作（アイデア出し・ラフ作成）</div></div>
+        <div class="tl-row"><div class="tl-time">12:00</div><div class="tl-icon">🍴</div><div>昼休憩</div></div>
+        <div class="tl-row"><div class="tl-time">13:00</div><div class="tl-icon">🖌️</div><div>デザイン制作（制作・修正）</div></div>
+        <div class="tl-row"><div class="tl-time">15:00</div><div class="tl-icon">💬</div><div>クライアントとの打ち合わせ</div></div>
+        <div class="tl-row"><div class="tl-time">17:00</div><div class="tl-icon">📋</div><div>データ整理・明日の準備</div></div>
+        <div class="tl-row"><div class="tl-time">18:30</div><div class="tl-icon">🏠</div><div>退社・帰宅</div></div>
+      </div>
+      <div class="job-card h">
+        <div class="jc-label">🔧 主な仕事</div>
+        <div class="jc-text">見た目や使いやすさをデザインして、サービスの魅力をわかりやすく伝えています。</div>
+        <div class="jc-emoji">🖥️</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: Q&A -->
+  <section class="slide" id="slide-4">
+    <div class="eyebrow">💬 よくあるQ&amp;A（対談タイム）</div>
+    <h1 class="title" style="font-size:clamp(18px,2.6vw,26px);">気になること、聞いてみよう</h1>
+    <div class="qa-wrap">
+      <div class="qa-item"><div class="qa-num">Q1</div><div>プログラミングは難しい？</div></div>
+      <div class="qa-item"><div class="qa-num">Q2</div><div>中学生でもエンジニアやデザイナーになれる？</div></div>
+      <div class="qa-item"><div class="qa-num">Q3</div><div>学校の勉強は仕事に役立つ？</div></div>
+      <div class="qa-item"><div class="qa-num">Q4</div><div>失敗したことはある？</div></div>
+      <div class="qa-item"><div class="qa-num">Q5</div><div>将来、どんな仕事がなくなると思う？AIについてどう考えている？</div></div>
+      <div class="qa-cta">📣 ここまでの質問以外でも、気になることはなんでも質問してください！</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" aria-label="前のスライド">←</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn" aria-label="次のスライド">→</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const dotsWrap = document.getElementById('dots');
+  const curEl = document.getElementById('cur');
+  document.getElementById('tot').textContent = total;
+  let idx = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function render(){
+    slides.forEach((s, i) => {
+      s.classList.toggle('active', i === idx);
+      s.classList.toggle('prev', i < idx);
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    curEl.textContent = idx + 1;
+    document.getElementById('prevBtn').disabled = idx === 0;
+    document.getElementById('nextBtn').disabled = idx === total - 1;
+  }
+  function goTo(i){
+    idx = Math.max(0, Math.min(total - 1, i));
+    render();
+  }
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(idx - 1));
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(idx + 1));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') goTo(idx + 1);
+    if (e.key === 'ArrowLeft') goTo(idx - 1);
+  });
+
+  // touch swipe
+  let touchStartX = null;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) { dx < 0 ? goTo(idx + 1) : goTo(idx - 1); }
+    touchStartX = null;
+  });
+
+  render();
+</script>
+</body>
+</html>
